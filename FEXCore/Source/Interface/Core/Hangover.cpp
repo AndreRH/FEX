@@ -340,4 +340,12 @@ extern "C" __attribute__((visibility ("default"))) void hangover_fex_run(void* w
     }
 }
 
+extern "C" __attribute__((visibility ("default"))) void hangover_fex_invalidate_code_range( uint64_t start, uint64_t length )
+{
+    if (!CTX)
+        return;
+
+    CTX->InvalidateGuestCodeRange(Thread, start, length);
+}
+
 #endif
