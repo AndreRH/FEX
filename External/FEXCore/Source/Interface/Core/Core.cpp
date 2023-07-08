@@ -295,7 +295,7 @@ namespace FEXCore::Context {
     Dispatcher->GetSRAFPRMapping(SignalConfig.SRAFPRMapping);
 
     // Give this configuration to the SignalDelegator.
-    SignalDelegation->SetConfig(SignalConfig);
+    //SignalDelegation->SetConfig(SignalConfig);
 
     if (Config.GdbServer) {
       StartGdbServer();
@@ -369,12 +369,13 @@ namespace FEXCore::Context {
   }
 
   void ContextImpl::NotifyPause() {
-
+#if 0
     // Tell all the threads that they should pause
     std::lock_guard<std::mutex> lk(ThreadCreationMutex);
     for (auto &Thread : Threads) {
       SignalDelegation->SignalThread(Thread, FEXCore::Core::SignalEvent::Pause);
     }
+#endif
   }
 
   void ContextImpl::Pause() {
@@ -474,13 +475,13 @@ namespace FEXCore::Context {
 
   void ContextImpl::StopThread(FEXCore::Core::InternalThreadState *Thread) {
     if (Thread->RunningEvents.Running.exchange(false)) {
-      SignalDelegation->SignalThread(Thread, FEXCore::Core::SignalEvent::Stop);
+      //SignalDelegation->SignalThread(Thread, FEXCore::Core::SignalEvent::Stop);
     }
   }
 
   void ContextImpl::SignalThread(FEXCore::Core::InternalThreadState *Thread, FEXCore::Core::SignalEvent Event) {
     if (Thread->RunningEvents.Running.load()) {
-      SignalDelegation->SignalThread(Thread, Event);
+      //SignalDelegation->SignalThread(Thread, Event);
     }
   }
 
@@ -542,7 +543,7 @@ namespace FEXCore::Context {
       // Once FEX creates its first guest thread, overwrite the GLIBC SETXID handler *again* to ensure
       // FEX maintains control of the signal handler on this signal.
       NeedToCheckXID = false;
-      SignalDelegation->CheckXIDHandler();
+    //  SignalDelegation->CheckXIDHandler();
       Thread->StartRunning.NotifyAll();
     }
   }
@@ -551,7 +552,7 @@ namespace FEXCore::Context {
     // Let's do some initial bookkeeping here
     Thread->ThreadManager.TID = FHU::Syscalls::gettid();
     Thread->ThreadManager.PID = ::getpid();
-    SignalDelegation->RegisterTLSState(Thread);
+    //SignalDelegation->RegisterTLSState(Thread);
     ThunkHandler->RegisterTLSState(Thread);
   }
 
@@ -1144,19 +1145,6 @@ namespace FEXCore::Context {
 
   void ContextImpl::ExecutionThread(FEXCore::Core::InternalThreadState *Thread) {
     Core::ThreadData.Thread = Thread;
-    Thread->ExitReason = FEXCore::Context::ExitReason::EXIT_WAITING;
-
-    InitializeThreadTLSData(Thread);
-
-    ++IdleWaitRefCount;
-
-    // Now notify the thread that we are initialized
-    Thread->ThreadWaiting.NotifyAll();
-
-    if (Thread != static_cast<ContextImpl*>(Thread->CTX)->ParentThread || StartPaused || Thread->StartPaused) {
-      // Parent thread doesn't need to wait to run
-      Thread->StartRunning.Wait();
-    }
 
     if (!Thread->RunningEvents.EarlyExit.load()) {
       Thread->RunningEvents.WaitingToStart = false;
@@ -1164,9 +1152,7 @@ namespace FEXCore::Context {
       Thread->ExitReason = FEXCore::Context::ExitReason::EXIT_NONE;
 
       Thread->RunningEvents.Running = true;
-
       static_cast<ContextImpl*>(Thread->CTX)->Dispatcher->ExecuteDispatch(Thread->CurrentFrame);
-
       Thread->RunningEvents.Running = false;
     }
 
@@ -1174,28 +1160,6 @@ namespace FEXCore::Context {
       // Ensure the Code Object Serialization service has fully serialized this thread's data before clearing the cache
       // Use the thread's object cache ref counter for this
       CodeSerialize::CodeObjectSerializeService::WaitForEmptyJobQueue(&Thread->ObjectCacheRefCounter);
-    }
-
-    // If it is the parent thread that died then just leave
-    FEX_TODO("This doesn't make sense when the parent thread doesn't outlive its children");
-
-    if (Thread->ThreadManager.parent_tid == 0) {
-      CoreShuttingDown.store(true);
-      Thread->ExitReason = FEXCore::Context::ExitReason::EXIT_SHUTDOWN;
-
-      if (CustomExitHandler) {
-        CustomExitHandler(Thread->ThreadManager.TID, Thread->ExitReason);
-      }
-    }
-
-    --IdleWaitRefCount;
-    IdleWaitCV.notify_all();
-
-    SignalDelegation->UninstallTLSState(Thread);
-
-    // If the parent thread is waiting to join, then we can't destroy our thread object
-    if (!Thread->DestroyedByParent && Thread != static_cast<ContextImpl*>(Thread->CTX)->ParentThread) {
-      Thread->CTX->DestroyThread(Thread);
     }
   }
 

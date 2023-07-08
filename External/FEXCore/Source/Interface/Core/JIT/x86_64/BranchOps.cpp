@@ -143,6 +143,19 @@ DEF_OP(CondJump) {
 }
 
 DEF_OP(Syscall) {
+  mov(rsp, qword [STATE + offsetof(FEXCore::Core::CpuStateFrame, ReturningStackLocation)]);
+
+  add(rsp, 8);
+
+  pop(r15);
+  pop(r14);
+  pop(r13);
+  pop(r12);
+  pop(rbp);
+  pop(rbx);
+
+  ret();
+#if 0
   auto Op = IROp->C<IR::IROp_Syscall>();
   // XXX: This is very terrible, but I don't care for right now
 
@@ -187,6 +200,7 @@ DEF_OP(Syscall) {
     pop(RA64[i - 1]);
 
   mov (GetDst<RA_64>(Node), rax);
+#endif
 }
 
 DEF_OP(Thunk) {

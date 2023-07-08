@@ -133,7 +133,7 @@ void Arm64Dispatcher::EmitDispatcher() {
   // VIXL simulator can't run syscalls.
   constexpr bool SignalSafeCompile = false;
 #else
-  constexpr bool SignalSafeCompile = true;
+  constexpr bool SignalSafeCompile = false;
 #endif
 
   ARMEmitter::ForwardLabel NoBlock;

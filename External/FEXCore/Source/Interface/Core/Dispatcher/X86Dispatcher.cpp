@@ -170,7 +170,7 @@ X86Dispatcher::X86Dispatcher(FEXCore::Context::ContextImpl *ctx, const Dispatche
     ret();
   }
 
-  constexpr bool SignalSafeCompile = true;
+  constexpr bool SignalSafeCompile = false;
   // Block creation
   {
     L(NoBlock);

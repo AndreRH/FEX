@@ -158,6 +158,14 @@ DEF_OP(CondJump) {
 }
 
 DEF_OP(Syscall) {
+  ldr(ARMEmitter::XReg::x0, STATE, offsetof(FEXCore::Core::CpuStateFrame, ReturningStackLocation));
+  add(ARMEmitter::Size::i64Bit, ARMEmitter::Reg::rsp, ARMEmitter::XReg::x0, 0);
+  SpillStaticRegs();
+  PopCalleeSavedRegisters();
+
+  // Return to the thunk
+  ret();
+#if 0
   auto Op = IROp->C<IR::IROp_Syscall>();
   // Arguments are passed as follows:
   // X0: SyscallHandler
@@ -219,6 +227,7 @@ DEF_OP(Syscall) {
     // Move result to its destination register
     mov(ARMEmitter::Size::i64Bit, GetReg(Node), ARMEmitter::Reg::r0);
   }
+#endif
 }
 
 DEF_OP(InlineSyscall) {
