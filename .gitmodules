@@ -30,9 +30,6 @@
         shallow = true
 	path = External/fex-gcc-target-tests-bins
 	url = https://github.com/FEX-Emu/fex-gcc-target-tests-bins.git
-[submodule "External/jemalloc"]
-	path = External/jemalloc
-	url = https://github.com/FEX-Emu/jemalloc.git
 [submodule "External/fmt"]
 	path = External/fmt
 	url = https://github.com/fmtlib/fmt.git
@@ -53,6 +50,3 @@
 	shallow = true
 	path = External/Vulkan-Headers
 	url = https://github.com/KhronosGroup/Vulkan-Headers.git
-[submodule "External/jemalloc_glibc"]
-	path = External/jemalloc_glibc
-	url = https://github.com/FEX-Emu/jemalloc.git
