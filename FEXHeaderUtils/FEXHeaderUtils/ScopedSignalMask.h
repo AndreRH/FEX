@@ -41,7 +41,7 @@ namespace FHU {
       ScopedSignalMaskWithMutexBase(MutexType &_Mutex, uint64_t Mask = ~0ULL)
         : Mutex {&_Mutex} {
         // Mask all signals, storing the original incoming mask
-        ::syscall(SYS_rt_sigprocmask, SIG_SETMASK, &Mask, &OriginalMask, sizeof(OriginalMask));
+        //::syscall(SYS_rt_sigprocmask, SIG_SETMASK, &Mask, &OriginalMask, sizeof(OriginalMask));
 
         // Lock the mutex
         (Mutex->*lock_fn)();
@@ -63,7 +63,7 @@ namespace FHU {
           (Mutex->*unlock_fn)();
 
           // Unmask back to the original signal mask
-          ::syscall(SYS_rt_sigprocmask, SIG_SETMASK, &OriginalMask, nullptr, sizeof(OriginalMask));
+          //::syscall(SYS_rt_sigprocmask, SIG_SETMASK, &OriginalMask, nullptr, sizeof(OriginalMask));
         }
       }
     private:
