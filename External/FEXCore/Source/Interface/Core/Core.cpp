@@ -1153,8 +1153,6 @@ namespace FEXCore::Context {
   }
 
   void ContextImpl::ExecutionThread(FEXCore::Core::InternalThreadState *Thread) {
-    Core::ThreadData.Thread = Thread;
-
     if (!Thread->RunningEvents.EarlyExit.load()) {
       Thread->RunningEvents.WaitingToStart = false;
 
