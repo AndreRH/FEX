@@ -41,27 +41,7 @@ public:
   }
 };
 
-class DummySignalDelegator final : public FEXCore::SignalDelegator, public FEXCore::Allocator::FEXAllocOperators {
-public:
-  DummySignalDelegator() {}
-  ~DummySignalDelegator() override {}
-
-  void CheckXIDHandler() override {}
-
-  void SignalThread(FEXCore::Core::InternalThreadState *Thread, FEXCore::Core::SignalEvent Event) override {}
-
-protected:
-  void HandleGuestSignal(FEXCore::Core::InternalThreadState *Thread, int Signal, void *Info, void *UContext) override {}
-
-  void RegisterFrontendTLSState(FEXCore::Core::InternalThreadState *Thread) override {}
-  void UninstallFrontendTLSState(FEXCore::Core::InternalThreadState *Thread) override {}
-
-  void FrontendRegisterHostSignalHandler(int Signal, FEXCore::HostSignalDelegatorFunction Func, bool Required) override {}
-  void FrontendRegisterFrontendHostSignalHandler(int Signal, FEXCore::HostSignalDelegatorFunction Func, bool Required) override {}
-};
-
 static fextl::unique_ptr<FEXCore::Context::Context> CTX;
-DummySignalDelegator SignalDelegator;
 DummySyscallHandler SyscallHandler;
 
 extern "C" __attribute__((visibility ("default"))) void hangover_fex_init() {
@@ -79,7 +59,6 @@ extern "C" __attribute__((visibility ("default"))) void hangover_fex_init() {
   FEXCore::Context::InitializeStaticTables( FEXCore::Context::MODE_32BIT);
 
   CTX = FEXCore::Context::Context::CreateNewContext();
-  CTX->SetSignalDelegator(&SignalDelegator);
   CTX->SetSyscallHandler(&SyscallHandler);
   CTX->InitCore();
 }
