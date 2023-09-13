@@ -1135,8 +1135,6 @@ namespace FEXCore::Context {
       // Parent thread doesn't need to wait to run
       Thread->StartRunning.Wait();
     }
-#else
-    Core::ThreadData.Thread = Thread;
 #endif
 
     if (!Thread->RunningEvents.EarlyExit.load()) {
