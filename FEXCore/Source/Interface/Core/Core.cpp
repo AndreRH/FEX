@@ -612,9 +612,6 @@ namespace FEXCore::Context {
     // Let's do some initial bookkeeping here
     Thread->ThreadManager.TID = FHU::Syscalls::gettid();
     Thread->ThreadManager.PID = ::getpid();
-
-      Thread->SymbolBuffer = JITSymbols::AllocateBuffer();
-
     //SignalDelegation->RegisterTLSState(Thread);
     if (ThunkHandler) {
       ThunkHandler->RegisterTLSState(Thread);
@@ -1137,16 +1134,16 @@ namespace FEXCore::Context {
           for (auto& Subblock: DebugData->Subblocks) {
             auto BlockBasePtr = FragmentBasePtr + Subblock.HostCodeOffset;
             if (GuestRIPLookup.Entry) {
-              Symbols.Register(Thread->SymbolBuffer.get(), BlockBasePtr, DebugData->HostCodeSize, GuestRIPLookup.Entry->Filename, GuestRIP - GuestRIPLookup.VAFileStart);
+              Symbols.Register(BlockBasePtr, DebugData->HostCodeSize, GuestRIPLookup.Entry->Filename, GuestRIP - GuestRIPLookup.VAFileStart);
             } else {
-              Symbols.Register(Thread->SymbolBuffer.get(), BlockBasePtr, GuestRIP, Subblock.HostCodeSize);
+              Symbols.Register(BlockBasePtr, GuestRIP, Subblock.HostCodeSize);
             }
           }
         } else {
           if (GuestRIPLookup.Entry) {
-            Symbols.Register(Thread->SymbolBuffer.get(), FragmentBasePtr, DebugData->HostCodeSize, GuestRIPLookup.Entry->Filename, GuestRIP - GuestRIPLookup.VAFileStart);
+            Symbols.Register(FragmentBasePtr, DebugData->HostCodeSize, GuestRIPLookup.Entry->Filename, GuestRIP - GuestRIPLookup.VAFileStart);
         } else {
-          Symbols.Register(Thread->SymbolBuffer.get(), FragmentBasePtr, GuestRIP, DebugData->HostCodeSize);
+          Symbols.Register(FragmentBasePtr, GuestRIP, DebugData->HostCodeSize);
           }
         }
       }
