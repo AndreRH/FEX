@@ -315,7 +315,9 @@ namespace FEXCore::Context {
     Dispatcher->GetSRAFPRMapping(SignalConfig.SRAFPRMapping);
 
     // Give this configuration to the SignalDelegator.
+#ifdef __MINGW32__
     SignalDelegation->SetConfig(SignalConfig);
+#endif
 
 #ifndef _WIN32
     ThunkHandler = FEXCore::ThunkHandler::Create();
@@ -371,12 +373,13 @@ namespace FEXCore::Context {
   }
 
   void ContextImpl::NotifyPause() {
-
+#ifdef __MINGW32__
     // Tell all the threads that they should pause
     std::lock_guard<std::mutex> lk(ThreadCreationMutex);
     for (auto &Thread : Threads) {
       SignalDelegation->SignalThread(Thread, FEXCore::Core::SignalEvent::Pause);
     }
+#endif
   }
 
   void ContextImpl::Pause() {
@@ -475,15 +478,19 @@ namespace FEXCore::Context {
   }
 
   void ContextImpl::StopThread(FEXCore::Core::InternalThreadState *Thread) {
+#ifdef __MINGW32__
     if (Thread->RunningEvents.Running.exchange(false)) {
       SignalDelegation->SignalThread(Thread, FEXCore::Core::SignalEvent::Stop);
     }
+#endif
   }
 
   void ContextImpl::SignalThread(FEXCore::Core::InternalThreadState *Thread, FEXCore::Core::SignalEvent Event) {
+#ifdef __MINGW32__
     if (Thread->RunningEvents.Running.load()) {
       SignalDelegation->SignalThread(Thread, Event);
     }
+#endif
   }
 
   FEXCore::Context::ExitReason ContextImpl::RunUntilExit() {
@@ -540,7 +547,9 @@ namespace FEXCore::Context {
       // Once FEX creates its first guest thread, overwrite the GLIBC SETXID handler *again* to ensure
       // FEX maintains control of the signal handler on this signal.
       NeedToCheckXID = false;
+#ifdef __MINGW32__
       SignalDelegation->CheckXIDHandler();
+#endif
       Thread->StartRunning.NotifyAll();
     }
   }
@@ -557,7 +566,10 @@ namespace FEXCore::Context {
       Thread->SymbolBuffer = JITSymbols::AllocateBuffer();
     }
 
+#ifdef __MINGW32__
     SignalDelegation->RegisterTLSState(Thread);
+#endif
+
     if (ThunkHandler) {
       ThunkHandler->RegisterTLSState(Thread);
     }
@@ -1139,6 +1151,7 @@ namespace FEXCore::Context {
   }
 
   void ContextImpl::ExecutionThread(FEXCore::Core::InternalThreadState *Thread) {
+#ifdef __MINGW32__
     Thread->ExitReason = FEXCore::Context::ExitReason::EXIT_WAITING;
 
     InitializeThreadTLSData(Thread);
@@ -1155,6 +1168,9 @@ namespace FEXCore::Context {
       // Parent thread doesn't need to wait to run
       Thread->StartRunning.Wait();
     }
+#else
+    Core::ThreadData.Thread = Thread;
+#endif
 
     if (!Thread->RunningEvents.EarlyExit.load()) {
       Thread->RunningEvents.WaitingToStart = false;
@@ -1174,6 +1190,7 @@ namespace FEXCore::Context {
       CodeSerialize::CodeObjectSerializeService::WaitForEmptyJobQueue(&Thread->ObjectCacheRefCounter);
     }
 
+#ifdef __MINGW32__
     // If it is the parent thread that died then just leave
     FEX_TODO("This doesn't make sense when the parent thread doesn't outlive its children");
 
@@ -1198,6 +1215,7 @@ namespace FEXCore::Context {
     if (!Thread->DestroyedByParent && Thread != static_cast<ContextImpl*>(Thread->CTX)->ParentThread) {
       Thread->CTX->DestroyThread(Thread);
     }
+#endif
   }
 
   static void InvalidateGuestThreadCodeRange(FEXCore::Core::InternalThreadState *Thread, uint64_t Start, uint64_t Length) {
