@@ -155,7 +155,7 @@ namespace FEXCore {
     public:
       explicit ScopedSignalMasker(uint64_t Mask) : OriginalMask(0) {
         // Mask all signals, storing the original incoming mask
-        ::syscall(SYS_rt_sigprocmask, SIG_SETMASK, &Mask, &*OriginalMask, sizeof(*OriginalMask));
+        //::syscall(SYS_rt_sigprocmask, SIG_SETMASK, &Mask, &*OriginalMask, sizeof(*OriginalMask));
       }
 
       // Move-only type
@@ -167,7 +167,7 @@ namespace FEXCore {
 
       ~ScopedSignalMasker() {
         if (OriginalMask) {
-          ::syscall(SYS_rt_sigprocmask, SIG_SETMASK, &OriginalMask, nullptr, sizeof(*OriginalMask));
+          //::syscall(SYS_rt_sigprocmask, SIG_SETMASK, &OriginalMask, nullptr, sizeof(*OriginalMask));
         }
       }
     private:
