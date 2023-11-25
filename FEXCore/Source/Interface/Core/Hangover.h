@@ -52,7 +52,7 @@ typedef struct _I386_FLOATING_SAVE_AREA
     DWORD   DataSelector;
     BYTE    RegisterArea[I386_SIZE_OF_80387_REGISTERS];
     DWORD   Cr0NpxState;
-} I386_FLOATING_SAVE_AREA, WOW64_FLOATING_SAVE_AREA, *PWOW64_FLOATING_SAVE_AREA;
+} I386_FLOATING_SAVE_AREA;
 #define I386_MAXIMUM_SUPPORTED_EXTENSION     512
 
 typedef union _ARM64_NT_NEON128
@@ -107,7 +107,7 @@ typedef struct _I386_CONTEXT
     DWORD   SegSs;         /* 0c8 */
 
     BYTE    ExtendedRegisters[I386_MAXIMUM_SUPPORTED_EXTENSION];  /* 0xcc */
-} I386_CONTEXT, WOW64_CONTEXT, *PWOW64_CONTEXT;
+} I386_CONTEXT;
 
 #define ARM64_MAX_BREAKPOINTS   8
 #define ARM64_MAX_WATCHPOINTS   2
@@ -168,6 +168,7 @@ typedef struct _ARM64_NT_CONTEXT
     DWORD64 Wvr[ARM64_MAX_WATCHPOINTS]; /* 380 */
 } ARM64_NT_CONTEXT, *PARM64_NT_CONTEXT;
 
+#ifndef __MINGW32__
 typedef struct _M128A {
     ULONGLONG Low;
     LONGLONG High;
@@ -192,3 +193,4 @@ typedef struct _XSAVE_FORMAT {
     __uint128_t XmmRegisters[16];  /* 0a0 */
     uint8_t Reserved4[96];      /* 1a0 */
 } XSAVE_FORMAT, *PXSAVE_FORMAT;
+#endif
