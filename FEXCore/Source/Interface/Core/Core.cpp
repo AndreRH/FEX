@@ -559,13 +559,6 @@ namespace FEXCore::Context {
     Thread->ThreadManager.TID = FHU::Syscalls::gettid();
     Thread->ThreadManager.PID = ::getpid();
 
-    if (Config.BlockJITNaming() ||
-        Config.GlobalJITNaming() ||
-        Config.LibraryJITNaming()) {
-      // Allocate a TLS JIT symbol buffer only if enabled.
-      Thread->SymbolBuffer = JITSymbols::AllocateBuffer();
-    }
-
 #ifdef __MINGW32__
     SignalDelegation->RegisterTLSState(Thread);
 #endif
@@ -1093,16 +1086,16 @@ namespace FEXCore::Context {
           for (auto& Subblock: DebugData->Subblocks) {
             auto BlockBasePtr = FragmentBasePtr + Subblock.HostCodeOffset;
             if (GuestRIPLookup.Entry) {
-              Symbols.Register(Thread->SymbolBuffer.get(), BlockBasePtr, DebugData->HostCodeSize, GuestRIPLookup.Entry->Filename, GuestRIP - GuestRIPLookup.VAFileStart);
+              Symbols.Register(BlockBasePtr, DebugData->HostCodeSize, GuestRIPLookup.Entry->Filename, GuestRIP - GuestRIPLookup.VAFileStart);
             } else {
-              Symbols.Register(Thread->SymbolBuffer.get(), BlockBasePtr, GuestRIP, Subblock.HostCodeSize);
+              Symbols.Register(BlockBasePtr, GuestRIP, Subblock.HostCodeSize);
             }
           }
         } else {
           if (GuestRIPLookup.Entry) {
-            Symbols.Register(Thread->SymbolBuffer.get(), FragmentBasePtr, DebugData->HostCodeSize, GuestRIPLookup.Entry->Filename, GuestRIP - GuestRIPLookup.VAFileStart);
+            Symbols.Register(FragmentBasePtr, DebugData->HostCodeSize, GuestRIPLookup.Entry->Filename, GuestRIP - GuestRIPLookup.VAFileStart);
         } else {
-          Symbols.Register(Thread->SymbolBuffer.get(), FragmentBasePtr, GuestRIP, DebugData->HostCodeSize);
+          Symbols.Register(FragmentBasePtr, GuestRIP, DebugData->HostCodeSize);
           }
         }
       }
