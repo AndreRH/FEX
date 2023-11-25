@@ -457,7 +457,7 @@ void Dispatcher::EmitDispatcher() {
 
   if (CTX->Config.BlockJITNaming()) {
     fextl::string Name = fextl::fmt::format("Dispatch_{}", FHU::Syscalls::gettid());
-    CTX->Symbols.RegisterNamedRegion(reinterpret_cast<void*>(DispatchPtr), End - reinterpret_cast<uint64_t>(DispatchPtr), Name);
+    CTX->Symbols.Register(reinterpret_cast<void*>(DispatchPtr), End - reinterpret_cast<uint64_t>(DispatchPtr), Name);
   }
   if (CTX->Config.GlobalJITNaming()) {
     CTX->Symbols.RegisterJITSpace(reinterpret_cast<void*>(DispatchPtr), End - reinterpret_cast<uint64_t>(DispatchPtr));
