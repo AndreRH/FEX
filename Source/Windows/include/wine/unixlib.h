@@ -11,8 +11,6 @@ extern "C" {
 
 typedef UINT64 unixlib_handle_t;
 
-NTSTATUS WINAPI __wine_unix_call(unixlib_handle_t handle, unsigned int code, void* args);
-
 #ifdef __cplusplus
 }
 #endif

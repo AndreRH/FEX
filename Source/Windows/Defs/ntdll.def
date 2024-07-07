@@ -1,6 +1,8 @@
 LIBRARY ntdll.dll
 
 EXPORTS
+  LdrGetDllHandle
+  RtlFindExportedRoutineByName
   RtlWow64SetThreadContext
   RtlWow64GetThreadContext
   RtlWow64GetCurrentCpuArea
@@ -9,4 +11,3 @@ EXPORTS
   NtGetContextThread
   NtContinue
   __wine_dbg_output
-  __wine_unix_call

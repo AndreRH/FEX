@@ -43,6 +43,8 @@ $end_info$
 #include <wine/debug.h>
 #include <wine/unixlib.h>
 
+NTSTATUS (WINAPI *__wine_unix_call_dispatcher)( unixlib_handle_t, unsigned int, void * ) = NULL;
+
 namespace ControlBits {
 // When this is unset, a thread can be safely interrupted and have its context recovered
 // IMPORTANT: This can only safely be written by the owning thread
@@ -403,7 +405,7 @@ public:
       ReturnRSP += sizeof(StackLayout);
 
       Context::UnlockJITContext();
-      ReturnRAX = static_cast<uint64_t>(__wine_unix_call(StackArgs->Handle, StackArgs->ID, ULongToPtr(StackArgs->Args)));
+      ReturnRAX = static_cast<uint64_t>(__wine_unix_call_dispatcher(StackArgs->Handle, StackArgs->ID, ULongToPtr(StackArgs->Args)));
       Context::LockJITContext();
     } else if (Frame->State.rip == (uint64_t)BridgeInstrs::Syscall) {
       const uint64_t EntryRAX = Frame->State.gregs[FEXCore::X86State::REG_RAX];
@@ -483,6 +485,14 @@ void BTCpuProcessInit() {
   *reinterpret_cast<uint32_t*>(Addr) = 0x2ecd2ecd;
   BridgeInstrs::Syscall = Addr;
   BridgeInstrs::UnixCall = reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(Addr) + 2);
+
+  HMODULE module;
+  UNICODE_STRING str;
+  void **p__wine_unix_call_dispatcher;
+  RtlInitUnicodeString(&str, L"ntdll.dll");
+  LdrGetDllHandle(NULL, 0, &str, &module);
+  p__wine_unix_call_dispatcher = reinterpret_cast<void**>(RtlFindExportedRoutineByName(module, "__wine_unix_call_dispatcher"));
+  __wine_unix_call_dispatcher = reinterpret_cast<NTSTATUS (*)(unixlib_handle_t, unsigned int, void *)>(*p__wine_unix_call_dispatcher);
 }
 
 NTSTATUS BTCpuThreadInit() {

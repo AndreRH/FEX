@@ -91,6 +91,9 @@ typedef enum _MEMORY_INFORMATION_CLASS {
 NTSTATUS WINAPI Wow64SystemServiceEx(UINT, UINT*);
 void WINAPI Wow64ProcessPendingCrossProcessItems(void);
 
+NTSTATUS WINAPI LdrGetDllHandle(LPCWSTR, ULONG, const UNICODE_STRING*, HMODULE*);
+void*    WINAPI RtlFindExportedRoutineByName(HMODULE, const char*);
+
 NTSTATUS WINAPI RtlWow64SetThreadContext(HANDLE, const WOW64_CONTEXT*);
 NTSTATUS WINAPI RtlWow64GetThreadContext(HANDLE, WOW64_CONTEXT*);
 NTSTATUS WINAPI RtlWow64GetCurrentCpuArea(USHORT*, void**, void**);
