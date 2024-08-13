@@ -31,7 +31,6 @@ $end_info$
 #include "Common/InvalidationTracker.h"
 #include "Common/CPUFeatures.h"
 #include "Common/Logging.h"
-#include "Common/CRT/CRT.h"
 #include "DummyHandlers.h"
 #include "BTInterface.h"
 
@@ -414,7 +413,6 @@ public:
 };
 
 void BTCpuProcessInit() {
-  FEX::Windows::InitCRTProcess();
   FEX::Config::InitializeConfigs();
   FEXCore::Config::Initialize();
   FEXCore::Config::AddLayer(FEX::Config::CreateGlobalMainLayer());
@@ -464,7 +462,6 @@ void BTCpuProcessInit() {
 void BTCpuProcessTerm(HANDLE Handle, BOOL After, ULONG Status) {}
 
 void BTCpuThreadInit() {
-  FEX::Windows::InitCRTThread();
   auto* Thread = CTX->CreateThread(0, 0);
   GetTLS().ThreadState() = Thread;
   GetTLS().ControlWord().fetch_or(ControlBits::WOW_CPU_AREA_DIRTY, std::memory_order::relaxed);
@@ -491,7 +488,6 @@ void BTCpuThreadTerm(HANDLE Thread, LONG ExitCode) {
   }
 
   CTX->DestroyThread(TLS.ThreadState());
-  FEX::Windows::DeinitCRTThread();
 }
 
 void* BTCpuGetBopCode() {

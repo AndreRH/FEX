@@ -30,7 +30,6 @@ $end_info$
 #include "Common/TSOHandlerConfig.h"
 #include "Common/CPUFeatures.h"
 #include "Common/Logging.h"
-#include "Common/CRT/CRT.h"
 #include "DummyHandlers.h"
 #include "BTInterface.h"
 
@@ -512,7 +511,6 @@ extern "C" void SyncThreadContext(CONTEXT* Context) {
 }
 
 NTSTATUS ProcessInit() {
-  FEX::Windows::InitCRTProcess();
   FEX::Config::InitializeConfigs();
   FEXCore::Config::Initialize();
   FEXCore::Config::AddLayer(FEX::Config::CreateGlobalMainLayer());
@@ -728,7 +726,6 @@ void BTCpu64NotifyMemoryDirty(void* Address, SIZE_T Size) {
 void BTCpu64NotifyReadFile(HANDLE Handle, void* Address, SIZE_T Size, BOOL After, NTSTATUS Status) {}
 
 NTSTATUS ThreadInit() {
-  FEX::Windows::InitCRTThread();
   static constexpr size_t EmulatorStackSize = 0x40000;
   const uint64_t EmulatorStack = reinterpret_cast<uint64_t>(::VirtualAlloc(nullptr, EmulatorStackSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE));
   GetCPUArea().EmulatorStackLimit() = EmulatorStack;
@@ -789,7 +786,6 @@ NTSTATUS ThreadTerm(HANDLE Thread, LONG ExitCode) {
 
   CTX->DestroyThread(OldThreadState);
   ::VirtualFree(reinterpret_cast<void*>(GetCPUArea().EmulatorStackLimit()), 0, MEM_RELEASE);
-  FEX::Windows::DeinitCRTThread();
   return STATUS_SUCCESS;
 }
 
