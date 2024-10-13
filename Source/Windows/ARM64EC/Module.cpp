@@ -590,6 +590,8 @@ NTSTATUS ProcessInit() {
   // Not applicable to Windows
   FEXCore::Config::Set(FEXCore::Config::ConfigOption::CONFIG_TSOAUTOMIGRATION, "0");
 
+  __wine_dbg_output("starting FEX based libarm64ecfex.dll\n");
+
   FEXCore::Profiler::Init("", "");
 
   FEXCore::Context::InitializeStaticTables(FEXCore::Context::MODE_64BIT);
