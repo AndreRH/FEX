@@ -587,6 +587,8 @@ NTSTATUS ProcessInit() {
 
   FEXCore::Config::Set(FEXCore::Config::CONFIG_IS64BIT_MODE, "1");
 
+  __wine_dbg_output("starting FEX based libarm64ecfex.dll\n");
+
   FEXCore::Profiler::Init("", "");
 
   SignalDelegator = fextl::make_unique<FEX::DummyHandlers::DummySignalDelegator>();
