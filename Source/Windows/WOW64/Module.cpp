@@ -459,6 +459,8 @@ void BTCpuProcessInit() {
   // Not applicable to Windows
   FEXCore::Config::EraseSet(FEXCore::Config::ConfigOption::CONFIG_TSOAUTOMIGRATION, "0");
 
+  __wine_dbg_output("starting FEX based libwow64fex.dll\n");
+
   FEXCore::Profiler::Init();
 
   FEXCore::Context::InitializeStaticTables(FEXCore::Context::MODE_32BIT);
