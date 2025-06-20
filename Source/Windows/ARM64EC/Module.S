@@ -101,8 +101,7 @@ ret_sp_misaligned:
     ldr x16, [x16, HASH:lo12:WineSyscallDispatcher]; \
     cbz x16, 1f; \
     mov x9, x30; \
-    adrp x8, WinId; \
-    ldr x8, [x8, HASH:lo12:WineIdName]; \
+    mov x8, WinId; \
     blr x16; \
     ret; \
   1:; \
