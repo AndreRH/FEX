@@ -94,7 +94,7 @@ typedef struct __IMAGE_LOAD_CONFIG_DIRECTORY32 {
   DWORD GuardCFFunctionTable; /* 050 */
   DWORD GuardCFFunctionCount;
   DWORD GuardFlags;
-  IMAGE_LOAD_CONFIG_CODE_INTEGRITY CodeIntegrity;
+  __IMAGE_LOAD_CONFIG_CODE_INTEGRITY CodeIntegrity;
   DWORD GuardAddressTakenIatEntryTable;
   DWORD GuardAddressTakenIatEntryCount;
   DWORD GuardLongJumpTargetTable; /* 070 */
